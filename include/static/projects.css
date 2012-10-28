@@ -1,0 +1,22 @@
+
+#blocklist{
+	-moz-column-count: 2;
+	-moz-column-gap: 20px;
+	-webkit-column-count: 2;
+	-webkit-column-gap: 20px;
+	column-count: 2;
+	column-gap: 20px;
+	}
+
+#blocklist > div{
+	min-width:350px;
+	background:#fff;
+}
+
+#blockcenter{
+	width:600px;
+	min-width:auto;
+	margin:40px auto;
+	position:relative;
+	}
+
