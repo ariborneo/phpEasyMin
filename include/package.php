@@ -398,7 +398,6 @@ class package{
 		$content = file_get_contents($combine_file);
 		$lines = explode("\n",$content);
 
-
 		ob_start();
 		foreach($lines as $line){
 			if( strpos($line,'/') !== 0 && strpos($line,'.') !== 0 ){
@@ -419,6 +418,7 @@ class package{
 		}
 
 		$content = ob_get_clean();
+
 
 		//save the contents
 		switch($type){
@@ -465,21 +465,18 @@ class package{
 		$this->size_start[$type] += strlen($content);
 		$this->file_count[$type]++;
 
+
 		switch($type){
 
-			//js
+			//js ...  minimize to get any errors, but don't use the minimized content
 			case '.js':
-				$content .= ';';
 				if( $this->options['min_js'] ){
-					$content = easyjsmin::minimize($content,$file);
-					return true;
+					$min_content = easyjsmin::minimize($content,$file);
+					if( $min_content === false ){
+						return false;
+					}
 				}
-
-			//css
-			case '.css':
-				if( $this->options['min_css'] ){
-					$content = phpproject::MinCss($content);
-				}
+				$content .= ';';
 		}
 
 		if( $content === false ){
@@ -633,7 +630,6 @@ class package{
 		global $project;
 
 		$buffer = file_get_contents($from);
-
 
 		return $this->SaveMinJS($to,$buffer);
 	}
