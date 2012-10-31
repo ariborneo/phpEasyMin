@@ -329,12 +329,14 @@ class package{
 				$_POST['noshrink_paths'] = '';
 			}
 		}
-		$files = preg_split('#\s+#',$_POST['noshrink_paths']);
+
+		$files = str_replace("\r\n", "\n", $_POST['noshrink_paths']);
+		$files = explode("\n", $files);
 		foreach($files as $file){
 			$file = trim($file);
 
 			if( strpos($file,$this->source) === false ){
-				$full_path = $this->source.'/'.ltrim($file,'/');
+				$full_path = $this->source.'/'.ltrim($file,'/\\');
 			}else{
 				$full_path = $file;
 			}
