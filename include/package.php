@@ -447,6 +447,10 @@ class package{
 	 */
 	function AddCombinePath( $file, $type ){
 
+		if( in_array($file,$this->make_ignore_paths) ){
+			return true;
+		}
+
 		$this->make_ignore_paths[] = $file;
 
 		//directory
