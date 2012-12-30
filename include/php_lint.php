@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Check the syntact of php files using php -l
+ *
+ * Other ideas for checking php syntax:
+ * http://stackoverflow.com/questions/378959/is-there-a-static-code-analyzer-like-lint-for-php-files
+ * http://www.icosaedro.it/phplint/
+ *
+ */
+
 class php_lint{
 
 	var $results = array();
@@ -28,9 +37,10 @@ class php_lint{
 		$this->root = realpath($config['packages'][$id]['source']);
 		$this->root_len = strlen($this->root);
 
-
+		$start_time = microtime();
 		$this->LintDir($this->root);
-		echo '<p>Checked '.number_format($this->checked_count).' files using <i>php -l</i></p>';
+		$duration = microtime_diff($start_time, microtime() );
+		echo '<p>Checked '.number_format($this->checked_count).' files using <i>php -l</i> in '.$duration.' seconds</p>';
 		echo '<div id="tabs"></div>';
 		foreach($this->checked_messages as $hash => $message){
 			$files = $this->results[$hash];
