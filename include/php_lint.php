@@ -30,7 +30,7 @@ class php_lint{
 
 
 		$this->LintDir($this->root);
-		echo '<p>Checked '.number_format($this->checked_count).' files</p>';
+		echo '<p>Checked '.number_format($this->checked_count).' files using <i>php -l</i></p>';
 		echo '<div id="tabs"></div>';
 		foreach($this->checked_messages as $hash => $message){
 			$files = $this->results[$hash];
