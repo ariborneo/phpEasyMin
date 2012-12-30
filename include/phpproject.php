@@ -69,6 +69,13 @@ class phpproject{
 				$this->CacheInfo();
 			return;
 
+			case 'phplint':
+				$this->title = 'PHP Lint';
+				require('php_lint.php');
+				new php_lint();
+				$show = false;
+			break;
+
 			case 'checkphp';
 				$this->title = 'Analyze PHP';
 				require('php_version/php_version.php');
@@ -372,6 +379,7 @@ class phpproject{
 				echo '</td>';
 				echo '<td class="options">';
 				echo '<a href="?cmd=min_proj_prompt&id='.$package['key'].'">Minimize...</a>';
+				echo '<a href="?cmd=phplint&id='.$package['key'].'">PHP Lint</a>';
 				echo '<a href="?cmd=checkphp&id='.$package['key'].'">Check PHP</a>';
 				echo ' <a href="?cmd=editpackage&id='.$package['key'].'">Edit</a>';
 				echo ' <a href="?cmd=rmpackage&id='.$package['key'].'">Delete</a>';
@@ -761,7 +769,7 @@ class phpproject{
 	 * Functions for using cssmin
 	 *
 	 */
-	function MinCss($content){
+	static function MinCss($content){
 		if( defined('cssmin_v3') ){
 			return CssMin::minify($content);
 		}

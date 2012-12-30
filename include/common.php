@@ -13,7 +13,7 @@ if( version_compare(phpversion(),'5.0','>=') ){
 class common{
 
 	//returnMessages
-	function GetMessages(){
+	static function GetMessages(){
 		global $wbMessageBuffer;
 
 
@@ -44,7 +44,7 @@ class common{
 		echo '<ul>'.$result.'</ul></div>';
 	}
 
-	function GetCommand($type='cmd'){
+	static function GetCommand($type='cmd'){
 
 		if( isset($_POST[$type]) ){
 			return $_POST[$type];
@@ -60,7 +60,7 @@ class common{
 	 *  file functions
 	 *
 	 */
-	function Save($file,$contents){
+	static function Save($file,$contents){
 		$fp = common::fopen($file);
 		if( !$fp ){
 			return false;
@@ -74,7 +74,7 @@ class common{
 		return true;
 	}
 
-	function SaveArray($file,$varname,&$array){
+	static function SaveArray($file,$varname,&$array){
 
 		$data = common::ArrayToPHP($varname,$array);
 
@@ -91,11 +91,11 @@ class common{
 	}
 
 	//boolean, strings, and numbers
-	function ArrayToPHP($varname,&$array){
+	static function ArrayToPHP($varname,&$array){
 		return '$'.$varname.' = '.var_export($array,true).';';
 	}
 
-	function fopen($file){
+	static function fopen($file){
 
 		if( file_exists($file) ){
 			return fopen($file,'wb');
@@ -112,7 +112,7 @@ class common{
 		return $fp;
 	}
 
-	function CheckDir($dir){
+	static function CheckDir($dir){
 
 		if( file_exists($dir) ){
 			return true;

@@ -2,7 +2,7 @@
 
 class easyjsmin{
 
-	function minimize($content,$file=''){
+	static function minimize($content,$file=''){
 
 		$result = self::MinResult($content);
 		if( !$result ){
@@ -22,7 +22,7 @@ class easyjsmin{
 		}
 	}
 
-	function MinResult($content){
+	static function MinResult($content){
 		$cache_file = self::CachePath($content);
 
 		$result = self::GetFromCache($cache_file);
@@ -40,7 +40,7 @@ class easyjsmin{
 	}
 
 
-	function GetFromCache($file){
+	static function GetFromCache($file){
 		if( !file_exists($file) ){
 			return false;
 		}
@@ -51,7 +51,7 @@ class easyjsmin{
 		return json_decode($content,true);
 	}
 
-	function CachePath($content){
+	static function CachePath($content){
 		global $rootDir;
 		$hash = md5($content).'.'.sha1($content).'.'.strlen($content);
 		return $rootDir.'/data/_cache/'.substr($hash,0,1).'/'.substr($hash,1,1).'/'.substr($hash,2);
@@ -60,7 +60,7 @@ class easyjsmin{
 
 	//use google's closure compiler
 	//http://closure-compiler.appspot.com/home
-	function FetchFromClosure($content,$cache_file){
+	static function FetchFromClosure($content,$cache_file){
 
 
 		$host = 'closure-compiler.appspot.com';
@@ -112,7 +112,7 @@ class easyjsmin{
 		return $result;
 	}
 
-	function SaveToCache($file,$content){
+	static function SaveToCache($file,$content){
 		$content = gzencode($content,9);
 		return common::Save($file,$content);
 	}
@@ -122,7 +122,7 @@ class easyjsmin{
 	 * Don't save "Too many compiles performed recently." error
 	 *
 	 */
-	function TooManyCompiles($result){
+	static function TooManyCompiles($result){
 		if( isset($result['serverErrors'])
 			&& is_array($result['serverErrors'])
 			&& isset($result['serverErrors'][0])
@@ -134,7 +134,7 @@ class easyjsmin{
 		return false;
 	}
 
-	function ResultErrors( $result, $file=''){
+	static function ResultErrors( $result, $file=''){
 
 		$file = basename($file);
 		if( !$result ){
