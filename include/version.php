@@ -1,3 +1,3 @@
 <?php
 
-define('phpeasmin_version','1.0.3');
+define('phpeasmin_version','1.0.4');
