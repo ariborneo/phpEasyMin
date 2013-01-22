@@ -212,8 +212,8 @@ table.bordered th{
 	color:#555;
 	text-shadow:0 1px 0 #fff !important;
 	background-image: -moz-linear-gradient(center top , #F9F9F9, #ECECEC);
-    border-bottom:1px solid #DFDFDF;
-    border-top:1px solid #FFFFFF;
+	border-bottom:1px solid #DFDFDF;
+	border-top:1px solid #FFFFFF;
 	}
 
 table.bordered tr th:first-child{
@@ -237,10 +237,10 @@ table.bordered a{
  *
  */
 tbody.list td{
-    border-bottom:1px solid #DFDFDF;
-    border-top:1px solid #FFFFFF;
-    background:#FCFCFC;
-    }
+	border-bottom:1px solid #DFDFDF;
+	border-top:1px solid #FFFFFF;
+	background:#FCFCFC;
+	}
 tbody.list tr.odd td{
 	background:#F9F9F9;
 	}
@@ -263,9 +263,9 @@ textarea{
 	width:350px;
 	color:#444;
 
-    background-color: #FCFCFC;
-    border:1px solid #DFDFDF;
-    color: #333333;
+	background-color: #FCFCFC;
+	border:1px solid #DFDFDF;
+	color: #333333;
 
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
@@ -438,3 +438,40 @@ div.legend_used_once span{
 #tabs a.active{
 	background:#e7e7e7;
 	}
+
+label.option{
+	position:relative;
+	display:inline-block;
+	margin-right:15px;
+	cursor:pointer;
+	overflow:hidden;
+	}
+
+label.option input{
+	position:absolute;
+	left:-100px;
+	}
+
+label.option span{
+	display:inline-block;
+	border:1px solid #DFDFDF;
+	padding:4px 11px;
+	border-radius:4px;
+	color:#888;
+	}
+label.option span:before{
+	content:'\2610';
+	padding-right:5px;
+	}
+
+label.option input:checked + span{
+	border-color:#ccc;
+	background:-moz-linear-gradient(top, #F9F9F9 0 , #ECECEC 100%);
+	color:#333;
+	}
+
+label.option input:checked + span:before{
+	content:'\2612';
+	}
+
+

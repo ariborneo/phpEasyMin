@@ -15,6 +15,7 @@ class package{
 	var $ignore_prefixes = array();
 	var $noshrink_paths = array();
 
+	var $compress_options = array();
 
 	//used while minimizing
 	var $make_ignore_paths = array();
@@ -38,7 +39,9 @@ class package{
 		$this->source = rtrim($this->package['source'],'/');
 		$this->make_dir = $this->source.'/.easymin';
 		$this->package['destination'] = rtrim($this->package['destination'],'/');
+		$this->CheckCompression();
 		$this->SetOptions();
+
 
 		//check destination folder
 		if( !file_exists($this->source) ){
@@ -164,6 +167,23 @@ class package{
 		echo '</td></tr>';
 
 
+		echo '<tr><td>Compression</td><td>';
+		$_POST += array('compression'=>array());
+		if( count($this->compress_options) ){
+			foreach($this->compress_options as $ext){
+				$checked = '';
+				if( in_array($ext,$_POST['compression']) ){
+					$checked = ' checked="checked"';
+				}
+				echo '<label class="option"><input type="checkbox" name="compression[]" value="'.$ext.'" '.$checked.'/><span>'.$ext.'</span></label>';
+			}
+		}else{
+			echo '- compression not available -';
+		}
+
+		echo '</td></tr>';
+
+
 		echo '<tr><td></td><td>';
 		echo ' <input type="hidden" name="cmd" value="min_project" />';
 		echo ' <input type="submit" name="" value="Minimize" />';
@@ -176,6 +196,160 @@ class package{
 
 		return true;
 	}
+
+
+	/**
+	 * Execute shell command
+	 *
+	 * @param  string  $command       command line
+	 * @param  array   $output        stdout strings
+	 * @param  array   $error_output  stderr strings
+	 * @return int     exit code
+	 * @author Alexey Sukhotin
+	 **/
+	protected function procExec($command , array &$output = null, array &$error_output = null) {
+
+		$return_var = -1;
+
+		if( !function_exists('exec') ){
+			return $return_var;
+		}
+
+		$descriptorspec = array(
+			0 => array('pipe', 'r'),  // stdin
+			1 => array('pipe', 'w'),  // stdout
+			2 => array('pipe', 'w')   // stderr
+		);
+
+		$process = proc_open($command, $descriptorspec, $pipes, null, null);
+
+		if( is_resource($process) ){
+
+			fclose($pipes[0]);
+
+			$tmpout = '';
+			$tmperr = '';
+
+			$output = stream_get_contents($pipes[1]);
+			$error_output = stream_get_contents($pipes[2]);
+
+			fclose($pipes[1]);
+			fclose($pipes[2]);
+			$return_var = proc_close($process);
+		}
+
+		return $return_var;
+	}
+
+
+	/**
+	 * Determine which compression options are available
+	 *
+	 */
+	function CheckCompression(){
+
+		$tar = $this->procExec('tar --version');
+		$gzip = $this->procExec('gzip --version');
+		$bz = $this->procExec('bzip2 --version');
+		$zip = $this->procExec('zip -v');
+
+		if( $tar === 0 ){
+			$this->compress_options[] = 'tar';
+
+			if( $gzip === 0 ){
+				$this->compress_options[] = 'tgz';
+			}
+
+			if( $bz === 0 ){
+				$this->compress_options[] = 'tbz';
+			}
+		}
+
+		if( $zip === 0){
+			$this->compress_options[] = 'zip';
+		}
+
+	}
+
+
+	function Compress(){
+
+		if( !array_key_exists('compression',$_POST) || !count($_POST['compression']) ){
+			return;
+		}
+
+
+		foreach($_POST['compression'] as $type){
+			$this->CompressFolder($this->full_dest, $type);
+		}
+
+	}
+
+	/**
+	 * Files created by php often won't be writable by the system's user
+	 * To make them more usable, we change the file permissions
+	 *
+	 */
+	function MakeWritable($dir){
+
+		if( !function_exists('chmod') ){
+			return;
+		}
+
+		$files = scandir($dir);
+		foreach($files as $file){
+			if( $file == '.' || $file == '..' ){
+				continue;
+			}
+			$full_path = $dir.'/'.$file;
+
+			if( is_dir($full_path) ){
+				$this->MakeWritable($full_path);
+				continue;
+			}
+			chmod($full_path,0777);
+		}
+
+		chmod($dir,0777);
+	}
+
+	function CompressFolder($folder, $type){
+
+		$dir = dirname($folder);
+		$name = basename($folder);
+		$archive_name = $name.'.'.$type;
+		$archive_path = $folder.'.'.$type;
+
+		$cmd = '';
+		$arg = '';
+
+		switch($type){
+			case 'tar':
+				$cmd = 'tar -cf '.escapeshellarg($archive_name).' '.escapeshellarg($name);
+			break;
+			case 'tgz':
+				$cmd = 'tar -czf '.escapeshellarg($archive_name).' '.escapeshellarg($name);
+			break;
+			case 'tbz':
+				$cmd = 'tar -cjf '.escapeshellarg($archive_name).' '.escapeshellarg($name);
+			break;
+			case 'zip':
+				$cmd = 'zip -r9 '.escapeshellarg($archive_name).' '.escapeshellarg($name);
+			break;
+			default:
+			return false;
+		}
+
+
+		$cwd = getcwd();
+		chdir($dir);
+		$this->procExec($cmd, $c);
+		chdir($cwd);
+
+		return file_exists($archive_path) ? $archive_path : false;
+	}
+
+
 
 
 	/**
@@ -205,6 +379,10 @@ class package{
 		}
 
 		$this->full_dest = $full_dest;
+
+		$this->Compress();
+
+		$this->MakeWritable($full_dest);
 
 		$this->MinimizeStats();
 		return true;
@@ -513,7 +691,7 @@ class package{
 				message('Could not make directory <em>'.$to_dir.'</em>.');
 				return false;
 			}
-			chmod($to_dir,0777);
+			chmod($to_dir,0755); //0777);
 		}
 
 		set_time_limit(30);
@@ -602,7 +780,7 @@ class package{
 		}
 
 		if( copy($from,$to) ){
-			chmod($to,0777);
+			chmod($to,0644); //0777);
 			$this->size_end[$type] += $curr_size;
 			return true;
 		}
@@ -722,7 +900,7 @@ class package{
 			return false;
 		}
 		fclose($fh);
-		chmod($file,0777);
+		chmod($file, 0644); //0777);
 		return true;
 	}
 
